@@ -89,9 +89,6 @@ function move() {
 		case "right":
 			head.x++;
 			break;
-
-		default:
-			break;
 	}
 
 	// Put the copy of head at the start of snake array
@@ -102,19 +99,20 @@ function move() {
 		// Generate new food cube
 		gameState.food = generateFood();
 		increaseSpeed();
-
-		// Clear past interval
-		clearInterval(gameState.gameInterval);
-
-		gameState.gameInterval = setInterval(() => {
-			move();
-			checkCollision();
-			draw();
-		}, gameState.gameSpeedDelay);
+		resetInterval();
 	} else {
 		// Remove last element in snake array to give illusion of movement
 		gameState.snake.pop();
 	}
+}
+
+function resetInterval() {
+	clearInterval(gameState.gameInterval);
+	gameState.gameInterval = setInterval(() => {
+		move();
+		checkCollision();
+		draw();
+	}, gameState.gameSpeedDelay);
 }
 
 // Start game function
