@@ -121,13 +121,10 @@ function startGame() {
 	gameState.gameStarted = true;
 
 	// Hide logo and instruction text when the game is started
-	instructionText.style.display = "none";
-	logo.style.display = "none";
-	gameState.gameInterval = setInterval(() => {
-		move();
-		checkCollision();
-		draw();
-	}, gameState.gameSpeedDelay);
+	instructionText.classList.add("hidden");
+	logo.classList.add("hidden");
+
+	resetInterval();
 }
 
 function setupEventListeners() {
@@ -219,8 +216,8 @@ function updateScore() {
 function stopGame() {
 	clearInterval(gameState.gameInterval);
 	gameState.gameStarted = false;
-	instructionText.style.display = "block";
-	logo.style.display = "block";
+	instructionText.classList.remove("hidden");
+	logo.classList.remove("hidden");
 }
 
 function updateHighScore() {
