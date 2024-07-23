@@ -183,12 +183,14 @@ function checkCollision() {
 		head.y > gameState.gridSize
 	) {
 		resetGame();
+		return;
 	}
 
 	// Check if snake has collided with itself
 	for (let i = 1; i < gameState.snake.length; i++) {
 		if (head.x === gameState.snake[i].x && head.y === gameState.snake[i].y) {
 			resetGame();
+			return;
 		}
 	}
 }
@@ -198,10 +200,12 @@ function resetGame() {
 	stopGame();
 
 	// Set game variables back to default values
-	gameState.snake = [{ x: 10, y: 10 }];
-	gameState.food = generateFood();
-	gameState.direction = "right";
-	gameState.gameSpeedDelay = 200;
+	Object.assign(gameState, {
+		snake: [{ x: 10, y: 10 }],
+		food: { x: 0, y: 0 },
+		direction: "right",
+		gameSpeedDelay: 200,
+	});
 
 	updateScore();
 	draw();
