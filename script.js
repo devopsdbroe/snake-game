@@ -130,31 +130,33 @@ function startGame() {
 	}, gameState.gameSpeedDelay);
 }
 
+function setupEventListeners() {
+	document.addEventListener("keydown", handleKeypress);
+}
+
 // Keypress listener event
 function handleKeypress(e) {
-	if (
-		(!gameState.gameStarted && e.code === "Space") ||
-		(!gameState.gameStarted && e.key === " ")
-	) {
+	if (!gameState.gameStarted && (e.code === "Space" || e.key === " ")) {
 		startGame();
 	} else {
-		switch (e.key) {
-			case "ArrowUp":
-				gameState.direction = "up";
-				break;
-			case "ArrowDown":
-				gameState.direction = "down";
-				break;
-			case "ArrowLeft":
-				gameState.direction = "left";
-				break;
-			case "ArrowRight":
-				gameState.direction = "right";
-				break;
+		changeDirection(e.key);
+	}
+}
 
-			default:
-				break;
-		}
+function changeDirection(key) {
+	switch (key) {
+		case "ArrowUp":
+			if (gameState.direction !== "down") gameState.direction = "up";
+			break;
+		case "ArrowDown":
+			if (gameState.direction !== "up") gameState.direction = "down";
+			break;
+		case "ArrowLeft":
+			if (gameState.direction !== "right") gameState.direction = "left";
+			break;
+		case "ArrowRight":
+			if (gameState.direction !== "left") gameState.direction = "right";
+			break;
 	}
 }
 
@@ -227,4 +229,4 @@ function updateHighScore() {
 	highScoreText.style.display = "block";
 }
 
-document.addEventListener("keydown", handleKeypress);
+setupEventListeners();
