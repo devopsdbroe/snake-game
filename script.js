@@ -199,7 +199,7 @@ function resetGame() {
 	// Set game variables back to default values
 	Object.assign(gameState, {
 		snake: [{ x: 10, y: 10 }],
-		food: { x: 0, y: 0 },
+		food: generateFood(),
 		direction: "right",
 		gameSpeedDelay: 200,
 	});
