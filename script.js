@@ -6,14 +6,16 @@ const score = document.getElementById("score");
 const highScoreText = document.getElementById("highScore");
 
 // Define game variables
-const gridSize = 20;
-let snake = [{ x: 10, y: 10 }];
-let food = generateFood();
-let highScore = 0;
-let direction = "right";
-let gameInterval;
-let gameSpeedDelay = 200;
-let gameStarted = false;
+const gameState = {
+	gridSize: 20,
+	snake: [{ x: 10, y: 10 }],
+	food: { x: 0, y: 0 },
+	highScore: 0,
+	direction: "right",
+	gameInterval: null,
+	gameSpeedDelay: 200,
+	gameStarted: false,
+};
 
 // Draw the game map, snake, and food
 function draw() {
@@ -28,7 +30,7 @@ function draw() {
 // Draw snake
 function drawSnake() {
 	// Go through each coordinate object in snake array
-	snake.forEach((segment) => {
+	gameState.snake.forEach((segment) => {
 		const snakeElement = createGameElement("div", "snake");
 
 		setPosition(snakeElement, segment);
@@ -52,27 +54,29 @@ function setPosition(element, position) {
 
 // Create a food cube
 function drawFood() {
-	if (gameStarted) {
+	if (gameState.gameStarted) {
 		const foodElement = createGameElement("div", "food");
-		setPosition(foodElement, food);
+		setPosition(foodElement, gameState.food);
 		board.appendChild(foodElement);
 	}
 }
 
 // Randomize position of food cube
 function generateFood() {
-	const x = Math.floor(Math.random() * gridSize) + 1;
-	const y = Math.floor(Math.random() * gridSize) + 1;
+	const x = Math.floor(Math.random() * gameState.gridSize) + 1;
+	const y = Math.floor(Math.random() * gameState.gridSize) + 1;
 
 	// Return randomized food coordinates
 	return { x, y };
 }
 
+gameState.food = generateFood();
+
 // Moving the snake
 function move() {
 	// Create shallow copy of snake head using spread operator
-	const head = { ...snake[0] };
-	switch (direction) {
+	const head = { ...gameState.snake[0] };
+	switch (gameState.direction) {
 		case "up":
 			head.y--;
 			break;
@@ -91,60 +95,63 @@ function move() {
 	}
 
 	// Put the copy of head at the start of snake array
-	snake.unshift(head);
+	gameState.snake.unshift(head);
 
 	// Check if snake head has run into food cube
-	if (head.x === food.x && head.y === food.y) {
+	if (head.x === gameState.food.x && head.y === gameState.food.y) {
 		// Generate new food cube
-		food = generateFood();
+		gameState.food = generateFood();
 		increaseSpeed();
 
 		// Clear past interval
-		clearInterval(gameInterval);
+		clearInterval(gameState.gameInterval);
 
-		gameInterval = setInterval(() => {
+		gameState.gameInterval = setInterval(() => {
 			move();
 			checkCollision();
 			draw();
-		}, gameSpeedDelay);
+		}, gameState.gameSpeedDelay);
 	} else {
 		// Remove last element in snake array to give illusion of movement
-		snake.pop();
+		gameState.snake.pop();
 	}
 }
 
 // Start game function
 function startGame() {
 	// Keep track of whether game is running or not
-	gameStarted = true;
+	gameState.gameStarted = true;
 
 	// Hide logo and instruction text when the game is started
 	instructionText.style.display = "none";
 	logo.style.display = "none";
-	gameInterval = setInterval(() => {
+	gameState.gameInterval = setInterval(() => {
 		move();
 		checkCollision();
 		draw();
-	}, gameSpeedDelay);
+	}, gameState.gameSpeedDelay);
 }
 
 // Keypress listener event
 function handleKeypress(e) {
-	if ((!gameStarted && e.code === "Space") || (!gameStarted && e.key === " ")) {
+	if (
+		(!gameState.gameStarted && e.code === "Space") ||
+		(!gameState.gameStarted && e.key === " ")
+	) {
 		startGame();
 	} else {
 		switch (e.key) {
 			case "ArrowUp":
-				direction = "up";
+				gameState.direction = "up";
 				break;
 			case "ArrowDown":
-				direction = "down";
+				gameState.direction = "down";
 				break;
 			case "ArrowLeft":
-				direction = "left";
+				gameState.direction = "left";
 				break;
 			case "ArrowRight":
-				direction = "right";
+				gameState.direction = "right";
 				break;
 
 			default:
@@ -154,28 +161,33 @@ function handleKeypress(e) {
 }
 
 function increaseSpeed() {
-	if (gameSpeedDelay > 150) {
-		gameSpeedDelay -= 5;
-	} else if (gameSpeedDelay > 100) {
-		gameSpeedDelay -= 3;
-	} else if (gameSpeedDelay > 50) {
-		gameSpeedDelay -= 2;
-	} else if (gameSpeedDelay > 25) {
-		gameSpeedDelay -= 1;
+	if (gameState.gameSpeedDelay > 150) {
+		gameState.gameSpeedDelay -= 5;
+	} else if (gameState.gameSpeedDelay > 100) {
+		gameState.gameSpeedDelay -= 3;
+	} else if (gameState.gameSpeedDelay > 50) {
+		gameState.gameSpeedDelay -= 2;
+	} else if (gameState.gameSpeedDelay > 25) {
+		gameState.gameSpeedDelay -= 1;
 	}
 }
 
 function checkCollision() {
-	const head = snake[0];
+	const head = gameState.snake[0];
 
 	// Check if snake has hit the wall
-	if (head.x < 1 || head.x > gridSize || head.y < 1 || head.y > gridSize) {
+	if (
+		head.x < 1 ||
+		head.x > gameState.gridSize ||
+		head.y < 1 ||
+		head.y > gameState.gridSize
+	) {
 		resetGame();
 	}
 
 	// Check if snake has collided with itself
-	for (let i = 1; i < snake.length; i++) {
-		if (head.x === snake[i].x && head.y === snake[i].y) {
+	for (let i = 1; i < gameState.snake.length; i++) {
+		if (head.x === gameState.snake[i].x && head.y === gameState.snake[i].y) {
 			resetGame();
 		}
 	}
@@ -186,32 +198,32 @@ function resetGame() {
 	stopGame();
 
 	// Set game variables back to default values
-	snake = [{ x: 10, y: 10 }];
-	food = generateFood();
-	direction = "right";
-	gameSpeedDelay = 200;
+	gameState.snake = [{ x: 10, y: 10 }];
+	gameState.food = generateFood();
+	gameState.direction = "right";
+	gameState.gameSpeedDelay = 200;
 
 	updateScore();
 	draw();
 }
 
 function updateScore() {
-	const currentScore = snake.length - 1;
+	const currentScore = gameState.snake.length - 1;
 	score.textContent = currentScore.toString().padStart(3, "0");
 }
 
 function stopGame() {
-	clearInterval(gameInterval);
-	gameStarted = false;
+	clearInterval(gameState.gameInterval);
+	gameState.gameStarted = false;
 	instructionText.style.display = "block";
 	logo.style.display = "block";
 }
 
 function updateHighScore() {
-	const currentScore = snake.length - 1;
-	if (currentScore > highScore) {
-		highScore = currentScore;
-		highScoreText.textContent = highScore.toString().padStart(3, "0");
+	const currentScore = gameState.snake.length - 1;
+	if (currentScore > gameState.highScore) {
+		gameState.highScore = currentScore;
+		highScoreText.textContent = gameState.highScore.toString().padStart(3, "0");
 	}
 
 	highScoreText.style.display = "block";
