@@ -4,6 +4,7 @@ const instructionText = document.getElementById("instruction-text");
 const logo = document.getElementById("logo");
 const score = document.getElementById("score");
 const highScoreText = document.getElementById("highScore");
+const pauseOverlay = document.getElementById("pause-overlay");
 
 // Define game variables
 const gameState = {
@@ -15,6 +16,7 @@ const gameState = {
 	gameInterval: null,
 	gameSpeedDelay: 200,
 	gameStarted: false,
+	gamePaused: false,
 };
 
 // Draw the game map, snake, and food
@@ -133,7 +135,9 @@ function setupEventListeners() {
 
 // Keypress listener event
 function handleKeypress(e) {
-	if (!gameState.gameStarted && (e.code === "Space" || e.key === " ")) {
+	if (e.code === "Escape") {
+		togglePause();
+	} else if (!gameState.gameStarted && (e.code === "Space" || e.key === " ")) {
 		startGame();
 	} else {
 		changeDirection(e.key);
@@ -141,6 +145,8 @@ function handleKeypress(e) {
 }
 
 function changeDirection(key) {
+	if (gameState.gamePaused) return;
+
 	switch (key) {
 		case "ArrowUp":
 			if (gameState.direction !== "down") gameState.direction = "up";
@@ -190,6 +196,26 @@ function checkCollision() {
 			return;
 		}
 	}
+}
+
+function togglePause() {
+	if (gameState.gamePaused) {
+		resumeGame();
+	} else {
+		pauseGame();
+	}
+}
+
+function pauseGame() {
+	gameState.gamePaused = true;
+	clearInterval(gameState.gameInterval);
+	pauseOverlay.classList.remove("hidden");
+}
+
+function resumeGame() {
+	gameState.gamePaused = false;
+	pauseOverlay.classList.add("hidden");
+	resetInterval();
 }
 
 function resetGame() {
