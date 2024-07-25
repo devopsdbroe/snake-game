@@ -135,7 +135,7 @@ function setupEventListeners() {
 
 // Keypress listener event
 function handleKeypress(e) {
-	if (e.code === "Escape") {
+	if (e.code === "Escape" && gameState.gameStarted) {
 		togglePause();
 	} else if (!gameState.gameStarted && (e.code === "Space" || e.key === " ")) {
 		startGame();
